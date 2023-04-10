@@ -1,0 +1,181 @@
+.contenedor_principal{
+  display: flex;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.menu{
+  flex-basis: 40%;
+  background-color: rgba(255, 255, 255, 0.582);
+  border-radius: 1.5rem;
+  margin: 5rem;
+  box-shadow: -1px 1px 51px -13px rgba(0,0,0,0.75);
+  -webkit-box-shadow: -1px 1px 51px -13px rgba(0,0,0,0.75);
+  -moz-box-shadow: -1px 1px 51px -13px rgba(0,0,0,0.75);
+  border: solid .1rem white;
+}
+
+.menu-titulo{
+  font-size: 2.5rem;
+  margin: .5rem 0;
+  padding: 1rem;
+  font-family: 'Signika Negative', sans-serif;
+  font-weight: 900;
+}
+
+.menu-text{
+  font-size: 1.6rem;
+  margin: 0;
+  padding: 1rem;
+  font-family: 'Arimo', sans-serif;
+  font-weight: 500;
+}
+
+.menu-opciones{
+  display: flex;
+  flex-direction: column;
+  padding: 0 1rem;
+  margin-bottom: 1rem;
+}
+
+.menu-opcion{
+  font-size: 2rem;
+  text-align: center;
+  width: 50%;
+  background-color: rgba(0, 0, 0, 0.185);
+  border: solid .15rem rgb(255, 255, 255);
+  margin: .5rem 0;
+  padding: .5rem 1.5rem;
+  color: white;
+  border-radius: .5rem;
+  transition: .3s ease all;
+}
+
+.menu-opcion:hover{
+  background-color: rgb(0, 119, 255);
+
+}
+
+.img-hero{
+  position: absolute;
+  width: 30rem;
+  height: 20rem;
+  top: 30%;
+  left: calc(90% - 25vw);
+  z-index: 1000;
+}
+
+/* Estilos de la bola rotatoria */
+
+.floating-bg{
+  width: 80rem;
+  height: 80rem;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.829);
+  position: absolute;
+  top: -10%;
+  left: calc(80% - 25vw);
+  border-radius: 45%;
+  animation: rotate 30s infinite linear;
+}
+
+.floating-bg::before{
+  content: "";
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.295);
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 40%;
+  animation: rotate 30s infinite linear;
+}
+
+@keyframes rotate {
+  0%{
+      transform: rotate(0);
+  } 100%{
+      transform: rotate(360deg);
+  }
+}
+/* Fin de los estilos de la bola rotatoria */
+
+/* Estilos para el tablero y el juego */
+.game{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: auto;
+  height: auto;
+  background-color: rgba(255, 255, 255, 0.582);
+  border-radius: 1.5rem;
+  box-shadow: -1px 1px 51px -13px rgba(0,0,0,0.75);
+  -webkit-box-shadow: -1px 1px 51px -13px rgba(0,0,0,0.75);
+  -moz-box-shadow: -1px 1px 51px -13px rgba(0,0,0,0.75);
+  border: solid .1rem white;
+  perspective: 150rem;
+  padding: 1rem;
+}
+
+.card{
+  width: 9rem;
+  height: 5.5rem;
+  perspective: 20rem;
+  position: relative;
+}
+
+.card img{
+  width: 100%;
+  height: 100%;
+}
+
+.card-front{
+  position: absolute;
+  background-color: rgb(0, 153, 255);
+  border: solid .2rem rgb(0, 68, 170);
+  border-radius: .5rem;
+  width: 100%;
+  height: 100%;
+  top: -2%;
+  left: -2%;
+  backface-visibility: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-front img{
+  height: 90%;
+  width: 95%;
+}
+
+.card-back{
+  width: 100%;
+  height: 100%;
+  top: -2%;
+  left: -2%;
+  border: solid .2rem rgb(0, 68, 170);
+  border-radius: .5rem;
+  background-color: rgb(0, 55, 128);
+  transform: rotateY(360deg);
+  position: absolute;
+  backface-visibility: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-back img{
+  width: 95%;
+  height: 95%;
+  border-radius: .3rem;
+}
+
+.card-front.turned{
+  transform: rotateY(180deg);
+}
+
+.card-back.turned{
+  transform: rotateY(180deg);
+}
