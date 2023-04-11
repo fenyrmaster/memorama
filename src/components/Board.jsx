@@ -11,9 +11,8 @@ const Board = ({sizeBoard}) => {
     const [size, setSize] = useState(sizeBoard);
     const [loader, setLoader] = useState(true);
     const [imagenes, setImagenes] = useState([]);
-    const [openImages, setOpenImages] = useState([]);
-    const [clearedImages, setClearedImages] = useState([]);
-    const [compare, setCompare] = useState([]);
+    const [prev, setPrev] = useState(-1);
+    const [block, setBlock] = useState(false);
 
     const estadoContext = useContext(EstadoContext);
     const { estado, tabla } = estadoContext;
@@ -53,14 +52,19 @@ const Board = ({sizeBoard}) => {
     }
 
     useEffect(() => {
-        tabla("newGame");
+        tabla(1, "newGame");
         let images = [];
         const obtenerImagenes = async () => {
-            const url = `https://pixabay.com/api/?key=${import.meta.env.VITE_IMAGES_KEY}&q=tecnologia&per_page=${(size*size)/2}&page=${1}`;
+            const url = `https://pixabay.com/api/?key=${import.meta.env.VITE_IMAGES_KEY}&q=hardware&per_page=${(size*size)/2}&page=${1}`;
             const respuesta = await axios(url);
             respuesta.data.hits.forEach((el) => {
                 let data = {
                     image: el.previewURL,
+                    rotate: false,
+                    correct: false,
+                    wrong: false,
+                    ref: uuidv4(),
+                    index: 1,
                     id: 1
                 }
                 images.push(data);
@@ -68,9 +72,10 @@ const Board = ({sizeBoard}) => {
             let random = pickRandom(images, (size*size) / 2);
             let random2 = mezclar([...random, ...random]);
             let random3 = [];
-            random2.forEach(el => {
+            random2.forEach((el, index) => {
                 let newObj = {...el};
                 newObj.id = uuidv4();
+                newObj.index = index;
                 random3.push(newObj);
             })
             setImagenes(random3);
@@ -91,16 +96,55 @@ const Board = ({sizeBoard}) => {
     `;
 
     // La funcion que controla los correctos
-    const picks = card => {
-        if(openImages.indexOf(card) != -1){
-            setOpenImages([...openImages, card]);
+    const picks = async card => {
+        if(!block && card.correct === false){
+            imagenes[card.index].rotate = true;
+            setImagenes([...imagenes]);
+            if(prev != -1){
+                tabla(2, "elegido");
+            } else{
+                tabla(3, "elegido");
+            }
+            if(prev != -1){
+                if(imagenes[prev].id !== imagenes[card.index].id){
+                    setBlock(true);
+                    if(imagenes[prev].ref === imagenes[card.index].ref){
+                        imagenes[prev].correct = true;
+                        imagenes[card.index].correct = true;
+                        setImagenes([...imagenes]);
+                        console.log("hola 1");
+                        tabla(4, "correcto");
+                        setPrev(-1);
+                        tabla(5, "elegir");
+                        setBlock(false);
+                    } else{
+                        imagenes[prev].wrong = true;
+                        imagenes[card.index].wrong = true;
+                        console.log("hola 2");
+                        tabla(4, "incorrecto");
+                        setImagenes([...imagenes]);
+                        setTimeout(() => {
+                            setPrev(-1);
+                            imagenes[prev].wrong = false;
+                            imagenes[card.index].wrong = false;
+                            imagenes[prev].rotate = false;
+                            imagenes[card.index].rotate = false;
+                            setImagenes([...imagenes]);
+                            tabla(6, "elegir");
+                            setBlock(false);
+                        }, 1000);
+                    }
+                }
+            } else{
+                setPrev(card.index);
+            }
         }
     }
 
     return(
         <>
             <Container>
-                { imagenes.map((el, index) => <Card key={index} picks={picks} openImages={openImages} setOpenImages={setOpenImages} data={el}/>)}
+                { imagenes.map((el, index) => <Card key={index} picks={picks} data={el}/>)}
             </Container>
         </>
     )

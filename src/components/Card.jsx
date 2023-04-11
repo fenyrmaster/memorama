@@ -1,24 +1,18 @@
 import React, {useEffect, useState} from "react";
 
-const Card = ({data, picks, openImages}) => {
+const Card = ({data, picks}) => {
 
-    const [rotado, setRotado] = useState(false);
-
-    useEffect(() => {
-        let checked = openImages.indexOf(data);
-        if(checked != -1){
-            setRotado(true);
-        } else{
-            setRotado(false);
-        }
-    }, [openImages]);
+    const flipped = data.rotate ? "turned" : "";
+    const flippedOp = data.rotate ? "" : "turned";
+    const correct = data.correct ? "correct" : "";
+    const incorrect = data.wrong ? "incorrect" : "";
 
     return(
         <div onClick={() => picks(data)} className={`card`}>
-            <div className={`card-front ${rotado ? "turned" : ""}`}>
+            <div className={`card-front ${flipped}`}>
                 <img src="./microchip.png"/>
             </div>
-            <div className={`card-back ${rotado ? "" : "turned"}`}>
+            <div className={`card-back ${flippedOp} ${correct} ${incorrect}`}>
                 <img src={data.image}/>
             </div>
         </div>

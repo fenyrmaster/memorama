@@ -12,7 +12,9 @@ const EstadoProvider = ({ children }) => {
         menu: 1,
         elegirPrimeraOpcion: 2,
         elegirSegundaOpcion: 3,
-        comparar: 4
+        comparar: 4,
+        correcto: 5,
+        incorrecto: 6
     }
 
 
@@ -20,11 +22,31 @@ const EstadoProvider = ({ children }) => {
     const [compare, setCompare] = useState([]);
 
     // Estado ya esta definida, por lo que solo le pasamos la entrada
-    const tabla = entrada => {
-        if(estado === tabla_estados.finJuego && entrada === "Inicio"){
+    const tabla = (currentState, entrada) => {
+        if(currentState === tabla_estados.finJuego && entrada === "Inicio"){
             setEstado(tabla_estados.menu);
         }
-        else if(estado === tabla_estados.menu && entrada === "newGame"){
+        else if(currentState === tabla_estados.menu && entrada === "newGame"){
+            setEstado(tabla_estados.elegirPrimeraOpcion);
+        }
+        else if(currentState === tabla_estados.elegirPrimeraOpcion && entrada === "elegido"){
+            setEstado(tabla_estados.elegirSegundaOpcion);
+            console.log("pase a segunda");
+        }
+        else if(currentState === tabla_estados.elegirSegundaOpcion && entrada === "elegido"){
+            setEstado(tabla_estados.comparar);
+            console.log("pase a comparar");
+            console.log(estado);
+        }
+        else if(currentState === tabla_estados.comparar && entrada === "correcto"){
+            setEstado(tabla_estados.correcto);
+            console.log("pase a correcto");
+        }
+        else if(currentState === tabla_estados.comparar && entrada === "incorrecto"){
+            setEstado(tabla_estados.incorrecto);
+            console.log("pase a incorrecto");
+        }
+        else if((currentState === tabla_estados.correcto || tabla_estados.incorrecto) && entrada === "elegir"){
             setEstado(tabla_estados.elegirPrimeraOpcion);
         }
         else{

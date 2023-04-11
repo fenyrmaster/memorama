@@ -6,7 +6,7 @@ const MenuMemorama = () => {
 
   const [intervalo, setIntervalo] = useState(1);
   const estadoContext = useContext(EstadoContext);
-  const { estado, tabla } = estadoContext;
+  const { tabla } = estadoContext;
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -21,7 +21,7 @@ const MenuMemorama = () => {
 
     useEffect(() => {
         console.log(estadoContext);
-        tabla("Inicio");
+        tabla(0, "Inicio");
     }, [])
 
   return (
@@ -32,8 +32,8 @@ const MenuMemorama = () => {
                 <p className='menu-text'>Elije el tamaño del tablero:</p>
                 <div className='menu-opciones'>
                     <Link to={"/4x"} className='menu-opcion'>4X4</Link>
-                    <Link className='menu-opcion'>6X6</Link>
-                    <Link className='menu-opcion'>8X8</Link>
+                    <Link to={"/6x"} className='menu-opcion'>6X6</Link>
+                    <Link to={"/8x"} className='menu-opcion'>8X8</Link>
                 </div>
             </div>
             <div className='hero'>
