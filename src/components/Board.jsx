@@ -3,8 +3,11 @@ import EstadoContext from "../context/estadoContext";
 import styled from "@emotion/styled";
 import axios from "axios";
 import Card from "./Card";
+import Swal from "sweetalert2";
 import { v4 as uuidv4 } from 'uuid';
 import { css } from "@emotion/react";
+import confetti from "canvas-confetti";
+import { useNavigate } from "react-router-dom";
 
 const Board = ({sizeBoard}) => {
 
@@ -13,6 +16,7 @@ const Board = ({sizeBoard}) => {
     const [imagenes, setImagenes] = useState([]);
     const [prev, setPrev] = useState(-1);
     const [block, setBlock] = useState(false);
+    const navigate = useNavigate();
 
     const estadoContext = useContext(EstadoContext);
     const { estado, tabla } = estadoContext;
@@ -51,35 +55,36 @@ const Board = ({sizeBoard}) => {
         return clonedArray
     }
 
-    useEffect(() => {
-        tabla(1, "newGame");
+    const obtenerImagenes = async () => {
         let images = [];
-        const obtenerImagenes = async () => {
-            const url = `https://pixabay.com/api/?key=${import.meta.env.VITE_IMAGES_KEY}&q=hardware&per_page=${(size*size)/2}&page=${1}`;
-            const respuesta = await axios(url);
-            respuesta.data.hits.forEach((el) => {
-                let data = {
-                    image: el.previewURL,
-                    rotate: false,
-                    correct: false,
-                    wrong: false,
-                    ref: uuidv4(),
-                    index: 1,
-                    id: 1
-                }
-                images.push(data);
-            });
-            let random = pickRandom(images, (size*size) / 2);
-            let random2 = mezclar([...random, ...random]);
-            let random3 = [];
-            random2.forEach((el, index) => {
-                let newObj = {...el};
-                newObj.id = uuidv4();
-                newObj.index = index;
-                random3.push(newObj);
-            })
-            setImagenes(random3);
-        }
+        const url = `https://pixabay.com/api/?key=${import.meta.env.VITE_IMAGES_KEY}&q=hardware&per_page=${(size*size)/2}&page=${1}`;
+        const respuesta = await axios(url);
+        respuesta.data.hits.forEach((el) => {
+            let data = {
+                image: el.previewURL,
+                rotate: false,
+                correct: false,
+                wrong: false,
+                ref: uuidv4(),
+                index: 1,
+                id: 1
+            }
+            images.push(data);
+        });
+        let random = pickRandom(images, (size*size) / 2);
+        let random2 = mezclar([...random, ...random]);
+        let random3 = [];
+        random2.forEach((el, index) => {
+            let newObj = {...el};
+            newObj.id = uuidv4();
+            newObj.index = index;
+            random3.push(newObj);
+        })
+        setImagenes(random3);
+    }
+
+    useEffect(() => {
+        tabla(estado, "newGame");
         obtenerImagenes();
     }, []);
 
@@ -95,45 +100,97 @@ const Board = ({sizeBoard}) => {
         grid-template-rows: repeat(${size}, 1fr);
     `;
 
+    const gameEnded = estadoAct => {
+        let flag = true;
+        imagenes.forEach(el => {
+            if(!el.correct){
+                flag = false;
+            }
+        })
+        if(flag){
+            let colors = ['#bb0000', '#ffffff', "#00ff08", "#ffa200", "#eeff00", "#0800ff"];
+            let celebrateInt = setInterval(() => {
+                confetti({
+                    particleCount: 6,
+                    angle: 60,
+                    spread: 100,
+                    drift: Math.random(),
+                    origin: { x: 0 },
+                    colors,
+                    ticks: 300
+                });
+                confetti({
+                    particleCount: 6,
+                    angle: 120,
+                    spread: 100,
+                    drift: (Math.random()-1),
+                    origin: { x: 1 },
+                    colors,
+                    ticks: 300
+                });
+            }, 6);
+            setTimeout(() => {
+                clearInterval(celebrateInt);
+            }, 4000);
+            Swal.fire({
+                title: "Has completado el memorama!",
+                text: "Quieres volver a intentarlo con otro orden?",
+                icon: "success",
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Si!',
+                showCancelButton: true,
+                cancelButtonText: "No"
+            }).then((result) => {
+                if(result.isConfirmed){
+                    tabla(estadoAct, "newGame");
+                    obtenerImagenes();
+                } else if(result.isDismissed){
+                    tabla(estadoAct, "finC");
+                }
+            });
+            return true;
+        }
+        else{
+            return false
+        }
+    }
+
     // La funcion que controla los correctos
     const picks = async card => {
-        if(!block && card.correct === false){
+        if(!block && card.correct === false && card.index != prev){
             imagenes[card.index].rotate = true;
             setImagenes([...imagenes]);
-            if(prev != -1){
-                tabla(2, "elegido");
-            } else{
-                tabla(3, "elegido");
-            }
-            if(prev != -1){
-                if(imagenes[prev].id !== imagenes[card.index].id){
-                    setBlock(true);
-                    if(imagenes[prev].ref === imagenes[card.index].ref){
-                        imagenes[prev].correct = true;
-                        imagenes[card.index].correct = true;
-                        setImagenes([...imagenes]);
-                        console.log("hola 1");
-                        tabla(4, "correcto");
-                        setPrev(-1);
-                        tabla(5, "elegir");
-                        setBlock(false);
-                    } else{
-                        imagenes[prev].wrong = true;
-                        imagenes[card.index].wrong = true;
-                        console.log("hola 2");
-                        tabla(4, "incorrecto");
-                        setImagenes([...imagenes]);
-                        setTimeout(() => {
-                            setPrev(-1);
-                            imagenes[prev].wrong = false;
-                            imagenes[card.index].wrong = false;
-                            imagenes[prev].rotate = false;
-                            imagenes[card.index].rotate = false;
-                            setImagenes([...imagenes]);
-                            tabla(6, "elegir");
-                            setBlock(false);
-                        }, 1000);
+            let comparar = tabla(estado, "elegido");
+            if(comparar == 4){
+                setBlock(true);
+                if(imagenes[prev].ref === imagenes[card.index].ref){
+                    imagenes[prev].correct = true;
+                    imagenes[card.index].correct = true;
+                    setImagenes([...imagenes]);
+                    comparar = tabla(comparar, "correcto");
+                    setPrev(-1);
+                    // Validacion para verificar si el juego ha sido completado
+                    let actual = gameEnded(comparar);
+                    if(actual == false){
+                        tabla(comparar, "elegir");
                     }
+                    setBlock(false);
+                } else{
+                    imagenes[prev].wrong = true;
+                    imagenes[card.index].wrong = true;
+                    comparar = tabla(comparar, "incorrecto");
+                    setImagenes([...imagenes]);
+                    setTimeout(() => {
+                        setPrev(-1);
+                        imagenes[prev].wrong = false;
+                        imagenes[card.index].wrong = false;
+                        imagenes[prev].rotate = false;
+                        imagenes[card.index].rotate = false;
+                        setImagenes([...imagenes]);
+                        tabla(comparar, "elegir");
+                        setBlock(false);
+                    }, 1000);
                 }
             } else{
                 setPrev(card.index);

@@ -6,7 +6,7 @@ const MenuMemorama = () => {
 
   const [intervalo, setIntervalo] = useState(1);
   const estadoContext = useContext(EstadoContext);
-  const { tabla } = estadoContext;
+  const { estado, tabla } = estadoContext;
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -20,8 +20,7 @@ const MenuMemorama = () => {
     }, [intervalo]);
 
     useEffect(() => {
-        console.log(estadoContext);
-        tabla(0, "Inicio");
+        tabla(estado, "Inicio");
     }, [])
 
   return (
