@@ -108,6 +108,7 @@ const Board = ({sizeBoard}) => {
             }
         })
         if(flag){
+            let final = tabla(estadoAct, "completo");
             let colors = ['#bb0000', '#ffffff', "#00ff08", "#ffa200", "#eeff00", "#0800ff"];
             let celebrateInt = setInterval(() => {
                 confetti({
@@ -143,10 +144,10 @@ const Board = ({sizeBoard}) => {
                 cancelButtonText: "No"
             }).then((result) => {
                 if(result.isConfirmed){
-                    tabla(estadoAct, "newGame");
+                    tabla(final, "newGame");
                     obtenerImagenes();
                 } else if(result.isDismissed){
-                    tabla(estadoAct, "finC");
+                    tabla(final, "finC");
                 }
             });
             return true;

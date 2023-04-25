@@ -52,11 +52,15 @@ const EstadoProvider = ({ children }) => {
             setEstado(tabla_estados.elegirPrimeraOpcion);
             return tabla_estados.elegirPrimeraOpcion;
         }
-        else if(currentState === tabla_estados.correcto && entrada === "newGame"){
+        else if(currentState === tabla_estados.correcto && entrada === "completo"){
+            setEstado(tabla_estados.opcionFinal);
+            return tabla_estados.opcionFinal;
+        }
+        else if(currentState === tabla_estados.opcionFinal && entrada === "newGame"){
             setEstado(tabla_estados.elegirPrimeraOpcion);
             return tabla_estados.elegirPrimeraOpcion;
         }
-        else if(currentState === tabla_estados.correcto && entrada === "finC"){
+        else if(currentState === tabla_estados.opcionFinal && entrada === "finC"){
             setEstado(tabla_estados.finJuego);
             navigate("/");
         }
